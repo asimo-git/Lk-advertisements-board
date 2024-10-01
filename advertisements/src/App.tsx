@@ -1,11 +1,12 @@
-import "./App.css";
+import { Outlet } from "react-router-dom";
+import Header from "./components/Header";
+// import "./App.css";
 
-function App() {
+export default function App() {
   return (
     <>
-      <h1>Vite + React</h1>
+      <Header></Header>
+      <Outlet />
     </>
   );
 }
-
-export default App;
