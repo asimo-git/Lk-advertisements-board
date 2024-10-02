@@ -8,7 +8,6 @@ const AdsList = React.memo(function AdsList({
 }: {
   advertisements: Advertisment[];
 }) {
-  console.log(advertisements);
   return (
     <Container>
       <Row>
