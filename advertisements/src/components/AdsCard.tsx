@@ -1,6 +1,7 @@
 import { Card } from "react-bootstrap";
 
 interface AdsCardProps {
+  id: string;
   imageUrl: string | undefined;
   name: string;
   price: number;
@@ -9,6 +10,7 @@ interface AdsCardProps {
 }
 
 export default function AdsCard({
+  id,
   imageUrl,
   name,
   price,
@@ -16,13 +18,21 @@ export default function AdsCard({
   likes,
 }: AdsCardProps) {
   return (
-    <Card style={{ width: "18rem" }}>
-      <Card.Img variant="top" src={imageUrl} />
+    <Card id={id} className="h-100 d-flex flex-column">
+      <Card.Img
+        variant="top"
+        src={imageUrl}
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = "default-image-url.png";
+        }}
+      />
       <Card.Body>
         <Card.Title>{name}</Card.Title>
-        <Card.Text> {price}</Card.Text>
-        <Card.Text> {views}</Card.Text>
-        <Card.Text> {likes}</Card.Text>
+        <Card.Text> Цена: {price}</Card.Text>
+        <Card.Text>
+          {" "}
+          Просмотров: {views} &#129505; {likes}
+        </Card.Text>
       </Card.Body>
     </Card>
   );

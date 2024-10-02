@@ -1,26 +1,39 @@
-import { Container } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { Advertisment } from "../utils/types";
-import { ReactNode } from "react";
+import React from "react";
 import AdsCard from "./AdsCard";
 
-export default function AdsList({
+const AdsList = React.memo(function AdsList({
   advertisements,
 }: {
   advertisements: Advertisment[];
 }) {
-  const advertisementsCards: ReactNode[] = [];
+  console.log(advertisements);
+  return (
+    <Container>
+      <Row>
+        {advertisements.map((advertisement) => (
+          <Col
+            key={advertisement.id}
+            xs={12}
+            sm={6}
+            md={4}
+            lg={3}
+            className="mb-4"
+          >
+            <AdsCard
+              id={advertisement.id}
+              imageUrl={advertisement.imageUrl}
+              name={advertisement.name}
+              price={advertisement.price}
+              views={advertisement.views}
+              likes={advertisement.likes}
+            />
+          </Col>
+        ))}
+      </Row>
+    </Container>
+  );
+});
 
-  advertisements.forEach((advertisement) => {
-    advertisementsCards.push(
-      <AdsCard
-        imageUrl={advertisement.imageUrl}
-        name={advertisement.name}
-        price={advertisement.price}
-        views={advertisement.views}
-        likes={advertisement.likes}
-      />
-    );
-  });
-
-  return <Container>{advertisementsCards}</Container>;
-}
+export default AdsList;
