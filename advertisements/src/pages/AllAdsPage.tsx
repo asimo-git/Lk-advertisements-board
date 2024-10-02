@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import AdsList from "../components/AdsList";
 import { fetchAdvertisements } from "../utils/helpers";
 import { Advertisment } from "../utils/types";
-import { Button, Container, Spinner } from "react-bootstrap";
+import { Container, Spinner } from "react-bootstrap";
 import PaginationBar from "../components/PaginationBar";
 import SearchBar from "../components/SearchBar";
+import ModalAddNewAds from "../components/ModalAddNewAds";
 
 export default function AllAdsPage() {
   const [advertisements, setAdvertisements] = useState<Advertisment[]>([]);
@@ -14,14 +15,15 @@ export default function AllAdsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [adsPerPage, setAdsPerPage] = useState(10);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const ads = await fetchAdvertisements();
-      setAdvertisements(ads);
-      setLoading(false);
-    };
+  const loadAdvertisements = async () => {
+    setLoading(true);
+    const ads = await fetchAdvertisements();
+    setAdvertisements(ads);
+    setLoading(false);
+  };
 
-    void fetchData();
+  useEffect(() => {
+    void loadAdvertisements();
   }, []);
 
   const filteredAds = useMemo(() => {
@@ -48,9 +50,7 @@ export default function AllAdsPage() {
       <main>
         <Container>
           <h1>Ваши объявления</h1>
-          <Button variant="outline-info" className="mb-2">
-            Добавить новое объявление
-          </Button>
+          <ModalAddNewAds reloadAds={loadAdvertisements} />
           <SearchBar
             searchTerm={searchStr}
             onSearchChange={(e) => {
