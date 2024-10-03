@@ -22,22 +22,19 @@ export default function SearchBar({
       controlId="adsControls"
       className="mb-3 d-flex justify-content-between"
     >
-      {/* Поле поиска */}
       <Form.Control
         type="text"
         placeholder="Поиск по названию..."
         value={searchTerm}
         onChange={onSearchChange}
-        style={{ maxWidth: "300px" }} // Опциональный стиль для ограничения ширины
+        style={{ maxWidth: "300px" }}
       />
 
-      {/* Select для изменения количества объявлений на страницу */}
       <Form.Select
         value={adsPerPage}
         onChange={handleSelectChange}
         style={{ maxWidth: "200px" }}
       >
-        <option value="5">5 объявлений на страницу</option>
         <option value="10">10 объявлений на страницу</option>
         <option value="20">20 объявлений на страницу</option>
         <option value="50">50 объявлений на страницу</option>

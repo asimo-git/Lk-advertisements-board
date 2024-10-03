@@ -153,6 +153,23 @@
       "views": 200000,
       "likes": 302,
       "imageUrl": ""
+    },
+    {
+      "name": "Лампа",
+      "imageUrl": "",
+      "description": "sdf",
+      "price": 333,
+      "id": "a568"
+    },
+    {
+      "id": "c643",
+      "name": "Лопата",
+      "price": 44,
+      "createdAt": "2024-10-03T09:28:02.193Z",
+      "views": 0,
+      "likes": 0,
+      "imageUrl": "",
+      "description": ""
     }
   ],
   "orders": [

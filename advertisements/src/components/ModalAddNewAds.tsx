@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Modal, Button, Form, Toast, ToastContainer } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 import { addNewAdvertisement } from "../utils/helpers";
+import PopUp from "./PopUp";
 
 export default function ModalAddNewAds({
   reloadAds,
@@ -99,17 +100,7 @@ export default function ModalAddNewAds({
         </Modal.Body>
       </Modal>
 
-      <ToastContainer position="top-end" className="p-3">
-        <Toast
-          className="mt-3 p-3"
-          show={!!responseMessage}
-          delay={3000}
-          autohide
-          onClose={() => setResponseMessage(null)}
-        >
-          {responseMessage}
-        </Toast>
-      </ToastContainer>
+      <PopUp message={responseMessage} setMessage={setResponseMessage}></PopUp>
     </>
   );
 }

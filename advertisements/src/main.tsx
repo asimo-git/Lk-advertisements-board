@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AllAdsPage from "./pages/AllAdsPage.tsx";
+import AdsPage from "./pages/AdsPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <AllAdsPage />,
+      },
+      {
+        path: "/ads/:id",
+        element: <AdsPage />,
       },
       // {
       //   path: "/orders",
