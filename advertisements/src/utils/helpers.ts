@@ -1,4 +1,4 @@
-import { Advertisment } from "./types";
+import { Advertisment, Order } from "./types";
 
 export async function fetchAdvertisements(): Promise<Advertisment[]> {
   try {
@@ -8,6 +8,52 @@ export async function fetchAdvertisements(): Promise<Advertisment[]> {
     }
     const advertisements = (await response.json()) as Advertisment[];
     return advertisements;
+  } catch (error) {
+    console.error("Ошибка при получении объявлений:", error);
+    return [];
+  }
+}
+
+interface PropsFetchOrders {
+  filterStatus?: string;
+  sortPriceOrder?: string;
+}
+
+export async function fetchOders({
+  filterStatus,
+  sortPriceOrder,
+}: PropsFetchOrders): Promise<Order[]> {
+  try {
+    const params = new URLSearchParams();
+
+    if (sortPriceOrder) {
+      params.append("_sort", "total");
+    }
+
+    if (filterStatus) {
+      params.append("status", filterStatus);
+    }
+
+    const response = await fetch(
+      `http://localhost:3000/orders?${params.toString()}`
+    );
+    if (!response.ok) {
+      throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+    }
+    const orders = (await response.json()) as Order[];
+
+    // manual sorting on the client side due to the lack of sort order settings on the Jason-server
+    const sortedOrders = sortPriceOrder
+      ? orders.sort((a, b) => {
+          if (sortPriceOrder === "asc") {
+            return a.total > b.total ? 1 : -1;
+          } else {
+            return a.total < b.total ? 1 : -1;
+          }
+        })
+      : orders;
+    /////////////////////////////////////////
+    return sortedOrders;
   } catch (error) {
     console.error("Ошибка при получении объявлений:", error);
     return [];
@@ -87,7 +133,6 @@ export async function updateAdvertisement({
   setError,
 }: UpdateAdvertisementProps) {
   try {
-    console.log(formData);
     const response = await fetch(`http://localhost:3000/advertisements/${id}`, {
       method: "PUT",
       headers: {

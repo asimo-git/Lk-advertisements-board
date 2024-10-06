@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AllAdsPage from "./pages/AllAdsPage.tsx";
 import AdsPage from "./pages/AdsPage.tsx";
+import OrdersPage from "./pages/OrdersPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -20,10 +21,10 @@ const router = createBrowserRouter([
         path: "/ads/:id",
         element: <AdsPage />,
       },
-      // {
-      //   path: "/orders",
-      //   element: <OrdersPage />,
-      // },
+      {
+        path: "/orders",
+        element: <OrdersPage />,
+      },
     ],
   },
 ]);
