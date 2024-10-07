@@ -1,16 +1,93 @@
 import { Advertisment, Order } from "./types";
 
-export async function fetchAdvertisements(): Promise<Advertisment[]> {
+interface PropsFetchItems {
+  searchValue?: string;
+  priceFilter?: [string, string];
+  likesFilter?: [string, string];
+  statusFilter?: string;
+  currentPage: string;
+  perPage: string;
+  sortPriceOrder?: string;
+}
+
+interface JsonServerResponse {
+  pages: number;
+  data: Advertisment[];
+}
+
+function makeSearchParams({
+  searchValue,
+  priceFilter,
+  likesFilter,
+  statusFilter,
+  currentPage,
+  perPage,
+  sortPriceOrder,
+}: PropsFetchItems): string {
+  const params = new URLSearchParams();
+
+  if (searchValue) {
+    params.append("name", searchValue);
+  }
+  if (priceFilter) {
+    params.append("price_gte", priceFilter[0]);
+    params.append("price_lte", priceFilter[1]);
+  }
+  if (likesFilter) {
+    params.append("likes_gte", likesFilter[0]);
+    params.append("likes_lte", likesFilter[1]);
+  }
+  if (statusFilter) {
+    params.append("status", statusFilter);
+  }
+  if (sortPriceOrder) {
+    params.append("_sort", "total");
+  }
+
+  if (currentPage) {
+    params.append("_page", currentPage);
+  }
+  if (perPage) {
+    params.append("_per_page", perPage);
+  }
+
+  return params.toString();
+}
+
+interface FetchAdvertisementsResponse {
+  advertisements: Advertisment[];
+  totalPages: number | null;
+}
+
+export async function fetchAdvertisements({
+  searchValue,
+  priceFilter,
+  likesFilter,
+  currentPage,
+  perPage,
+}: PropsFetchItems): Promise<FetchAdvertisementsResponse> {
   try {
-    const response = await fetch("http://localhost:3000/advertisements");
+    const params = makeSearchParams({
+      searchValue,
+      priceFilter,
+      likesFilter,
+      currentPage,
+      perPage,
+    });
+    console.log(`http://localhost:3000/advertisements?${params}`);
+    const response = await fetch(
+      `http://localhost:3000/advertisements?${params}`
+    );
     if (!response.ok) {
-      throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+      throw new Error(`${response.status} ${response.statusText}`);
     }
-    const advertisements = (await response.json()) as Advertisment[];
-    return advertisements;
+    const responseData = (await response.json()) as JsonServerResponse;
+    const totalPages = responseData.pages;
+    const advertisements = responseData.data;
+    return { advertisements, totalPages };
   } catch (error) {
     console.error("Ошибка при получении объявлений:", error);
-    return [];
+    return { advertisements: [], totalPages: null };
   }
 }
 

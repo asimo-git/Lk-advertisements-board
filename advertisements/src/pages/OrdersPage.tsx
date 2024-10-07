@@ -3,6 +3,7 @@ import { fetchOders } from "../utils/helpers";
 import { Order, OrderStatus } from "../utils/types";
 import { Container, Form, Spinner } from "react-bootstrap";
 import OrdersList from "../components/OrdersList";
+// import PaginationBar from "../components/PaginationBar";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -57,20 +58,18 @@ export default function OrdersPage() {
 
           <h1>Ваши заказы</h1>
 
-          {
-            loading ? (
-              <Spinner animation="border" />
-            ) : orders.length === 0 ? (
-              <p>Ничего не найдено по вашему запросу</p>
-            ) : (
-              <OrdersList orders={orders}></OrdersList>
-            )
-            // {/* <PaginationBar
-            //   totalPages={totalPages}
-            //   currentPage={currentPage}
-            //   onPageChange={handlePageChange}
-            // /> */}
-          }
+          {loading ? (
+            <Spinner animation="border" />
+          ) : orders.length === 0 ? (
+            <p>Ничего не найдено по вашему запросу</p>
+          ) : (
+            <OrdersList orders={orders}></OrdersList>
+          )}
+          {/* <PaginationBar
+              totalPages={totalPages}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            /> */}
         </Container>
       </main>
     </>

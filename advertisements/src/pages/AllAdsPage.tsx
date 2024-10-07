@@ -1,47 +1,46 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AdsList from "../components/AdsList";
 import { fetchAdvertisements } from "../utils/helpers";
 import { Advertisment } from "../utils/types";
-import { Container, Spinner } from "react-bootstrap";
+import { Accordion, Container, Spinner } from "react-bootstrap";
 import PaginationBar from "../components/PaginationBar";
 import SearchBar from "../components/SearchBar";
 import ModalAddNewAds from "../components/ModalAddNewAds";
+import MinMaxFilter from "../components/MinMaxFilter";
 
 export default function AllAdsPage() {
   const [advertisements, setAdvertisements] = useState<Advertisment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [searchStr, setSearchStr] = useState("");
+  // поиск работает только по точному совпадению,json-server не поддерживает частичный поиск. для полного функционала лучше использовать другой сервер
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [adsPerPage, setAdsPerPage] = useState(10);
+  const [adsPerPage, setAdsPerPage] = useState("10");
+  const [totalPages, setTotalPages] = useState(1);
+  const [priceFilter, setPriceFilter] = useState<[string, string] | undefined>(
+    undefined
+  );
+  const [likesFilter, setLikesFilter] = useState<[string, string] | undefined>(
+    undefined
+  );
 
-  const loadAdvertisements = async () => {
+  const loadAdvertisements = useCallback(async () => {
     setLoading(true);
-    const ads = await fetchAdvertisements();
-    setAdvertisements(ads);
+    const response = await fetchAdvertisements({
+      searchValue,
+      priceFilter,
+      likesFilter,
+      currentPage: String(currentPage),
+      perPage: adsPerPage,
+    });
+    setAdvertisements(response.advertisements);
+    setTotalPages(response.totalPages ?? 1);
     setLoading(false);
-  };
+  }, [searchValue, priceFilter, likesFilter, currentPage, adsPerPage]);
 
   useEffect(() => {
     void loadAdvertisements();
-  }, []);
-
-  const filteredAds = useMemo(() => {
-    return advertisements.filter((ad) =>
-      ad.name.toLowerCase().includes(searchStr.toLowerCase())
-    );
-  }, [advertisements, searchStr]);
-
-  const currentAds = useMemo(() => {
-    const indexOfLastAd = currentPage * adsPerPage;
-    const indexOfFirstAd = indexOfLastAd - adsPerPage;
-    return filteredAds.slice(indexOfFirstAd, indexOfLastAd);
-  }, [currentPage, adsPerPage, filteredAds]);
-
-  const totalPages = useMemo(
-    () => Math.ceil(filteredAds.length / adsPerPage),
-    [adsPerPage, filteredAds]
-  );
+  }, [loadAdvertisements]);
 
   const handlePageChange = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -51,22 +50,40 @@ export default function AllAdsPage() {
         <Container>
           <h1>Ваши объявления</h1>
           <ModalAddNewAds reloadAds={loadAdvertisements} />
+
           <SearchBar
-            searchTerm={searchStr}
+            searchTerm={searchValue}
             onSearchChange={(e) => {
-              setSearchStr(e.target.value);
+              setSearchValue(e.target.value);
               setCurrentPage(1);
             }}
             adsPerPage={adsPerPage}
             setAdsPerPage={setAdsPerPage}
           />
+
+          <Accordion alwaysOpen flush className="w-100">
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>Фильтр по цене</Accordion.Header>
+              <Accordion.Body>
+                <MinMaxFilter setFilter={setPriceFilter} />
+              </Accordion.Body>
+            </Accordion.Item>
+
+            <Accordion.Item eventKey="1">
+              <Accordion.Header>Фильтр по лайкам</Accordion.Header>
+              <Accordion.Body>
+                <MinMaxFilter setFilter={setLikesFilter} />
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+
           {loading ? (
             <Spinner animation="border" />
-          ) : filteredAds.length === 0 ? (
+          ) : advertisements.length === 0 ? (
             <p>Ничего не найдено по вашему запросу</p>
           ) : (
             <>
-              <AdsList advertisements={currentAds}></AdsList>
+              <AdsList advertisements={advertisements}></AdsList>
               <PaginationBar
                 totalPages={totalPages}
                 currentPage={currentPage}

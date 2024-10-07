@@ -1,8 +1,8 @@
 import { Form } from "react-bootstrap";
 
 interface SearchBarProps {
-  adsPerPage: number;
-  setAdsPerPage: (count: number) => void;
+  adsPerPage: string;
+  setAdsPerPage: (count: string) => void;
   searchTerm: string;
   onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -14,7 +14,7 @@ export default function SearchBar({
   onSearchChange,
 }: SearchBarProps) {
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setAdsPerPage(Number(event.target.value));
+    setAdsPerPage(event.target.value);
   };
 
   return (
