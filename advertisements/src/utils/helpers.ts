@@ -1,3 +1,4 @@
+import { API_ENDPOINTS, Endpoint } from "./constants";
 import { Advertisment, Order } from "./types";
 
 interface PropsFetchItems {
@@ -6,13 +7,13 @@ interface PropsFetchItems {
   likesFilter?: [string, string];
   statusFilter?: string;
   currentPage: string;
-  perPage: string;
+  perPage?: string;
   sortPriceOrder?: string;
 }
 
 interface JsonServerResponse {
   pages: number;
-  data: Advertisment[];
+  data: Advertisment[] | Order[];
 }
 
 function makeSearchParams({
@@ -21,7 +22,7 @@ function makeSearchParams({
   likesFilter,
   statusFilter,
   currentPage,
-  perPage,
+  perPage = "10",
   sortPriceOrder,
 }: PropsFetchItems): string {
   const params = new URLSearchParams();
@@ -54,9 +55,35 @@ function makeSearchParams({
   return params.toString();
 }
 
-interface FetchAdvertisementsResponse {
+interface FetchResponse {
   advertisements: Advertisment[];
+  orders: Order[];
   totalPages: number | null;
+}
+
+async function fetchData<T>({
+  endpoint,
+  params,
+}: {
+  endpoint: Endpoint;
+  params: string;
+}): Promise<{ data: T; totalPages: number | null }> {
+  try {
+    const response = await fetch(`http://localhost:3000/${endpoint}?${params}`);
+
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    const responseData = (await response.json()) as JsonServerResponse;
+    const totalPages = responseData.pages ?? null;
+    const data = responseData.data as T;
+
+    return { data, totalPages };
+  } catch (error) {
+    console.error(`Ошибка при получении данных с ${endpoint}:`, error);
+    return { data: [] as unknown as T, totalPages: null };
+  }
 }
 
 export async function fetchAdvertisements({
@@ -65,7 +92,7 @@ export async function fetchAdvertisements({
   likesFilter,
   currentPage,
   perPage,
-}: PropsFetchItems): Promise<FetchAdvertisementsResponse> {
+}: PropsFetchItems): Promise<Omit<FetchResponse, "orders">> {
   try {
     const params = makeSearchParams({
       searchValue,
@@ -74,66 +101,51 @@ export async function fetchAdvertisements({
       currentPage,
       perPage,
     });
-    console.log(`http://localhost:3000/advertisements?${params}`);
-    const response = await fetch(
-      `http://localhost:3000/advertisements?${params}`
-    );
-    if (!response.ok) {
-      throw new Error(`${response.status} ${response.statusText}`);
-    }
-    const responseData = (await response.json()) as JsonServerResponse;
-    const totalPages = responseData.pages;
-    const advertisements = responseData.data;
-    return { advertisements, totalPages };
+
+    const { data, totalPages } = await fetchData<Advertisment[]>({
+      endpoint: API_ENDPOINTS.advertisements,
+      params,
+    });
+
+    return { advertisements: data, totalPages };
   } catch (error) {
     console.error("Ошибка при получении объявлений:", error);
     return { advertisements: [], totalPages: null };
   }
 }
 
-interface PropsFetchOrders {
-  filterStatus?: string;
-  sortPriceOrder?: string;
-}
-
 export async function fetchOders({
-  filterStatus,
+  statusFilter,
   sortPriceOrder,
-}: PropsFetchOrders): Promise<Order[]> {
+  currentPage,
+}: PropsFetchItems): Promise<Omit<FetchResponse, "advertisements">> {
   try {
-    const params = new URLSearchParams();
+    const params = makeSearchParams({
+      statusFilter,
+      sortPriceOrder,
+      currentPage,
+    });
 
-    if (sortPriceOrder) {
-      params.append("_sort", "total");
-    }
-
-    if (filterStatus) {
-      params.append("status", filterStatus);
-    }
-
-    const response = await fetch(
-      `http://localhost:3000/orders?${params.toString()}`
-    );
-    if (!response.ok) {
-      throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-    }
-    const orders = (await response.json()) as Order[];
+    const { data, totalPages } = await fetchData<Order[]>({
+      endpoint: API_ENDPOINTS.orders,
+      params,
+    });
 
     // manual sorting on the client side due to the lack of sort order settings on the Jason-server
     const sortedOrders = sortPriceOrder
-      ? orders.sort((a, b) => {
+      ? data.sort((a, b) => {
           if (sortPriceOrder === "asc") {
             return a.total > b.total ? 1 : -1;
           } else {
             return a.total < b.total ? 1 : -1;
           }
         })
-      : orders;
+      : data;
     /////////////////////////////////////////
-    return sortedOrders;
+    return { orders: sortedOrders, totalPages };
   } catch (error) {
     console.error("Ошибка при получении объявлений:", error);
-    return [];
+    return { orders: [], totalPages: null };
   }
 }
 

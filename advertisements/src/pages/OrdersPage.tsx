@@ -3,25 +3,33 @@ import { fetchOders } from "../utils/helpers";
 import { Order, OrderStatus } from "../utils/types";
 import { Container, Form, Spinner } from "react-bootstrap";
 import OrdersList from "../components/OrdersList";
-// import PaginationBar from "../components/PaginationBar";
+import PaginationBar from "../components/PaginationBar";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [filterStatus, setFilterStatus] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [statusFilter, setStatusFilter] = useState("");
   const [sortPriceOrder, setSortPriceOrder] = useState("");
 
   useEffect(() => {
     const loadOrders = async () => {
       setLoading(true);
-      const response = await fetchOders({ filterStatus, sortPriceOrder });
-      setOrders(response);
+      const response = await fetchOders({
+        statusFilter,
+        sortPriceOrder,
+        currentPage: String(currentPage),
+      });
+      setOrders(response.orders);
+      setTotalPages(response.totalPages ?? 1);
       setLoading(false);
     };
 
     void loadOrders();
-  }, [filterStatus, sortPriceOrder]);
+  }, [statusFilter, sortPriceOrder, currentPage]);
 
   return (
     <>
@@ -30,8 +38,8 @@ export default function OrdersPage() {
           <Form.Group className="d-flex align-items-center gap-3 my-3">
             <Form.Label>Фильтр по статусу</Form.Label>
             <Form.Select
-              value={filterStatus}
-              onChange={(event) => setFilterStatus(event.target.value)}
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
               style={{ maxWidth: "200px" }}
             >
               <option value="">Все</option>
@@ -65,11 +73,11 @@ export default function OrdersPage() {
           ) : (
             <OrdersList orders={orders}></OrdersList>
           )}
-          {/* <PaginationBar
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            /> */}
+          <PaginationBar
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
         </Container>
       </main>
     </>
