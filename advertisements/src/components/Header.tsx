@@ -6,7 +6,9 @@ export default function Header() {
       <header>
         <Navbar expand="sm" bg="dark" variant="dark">
           <Container>
-            <Navbar.Brand href="/">My Website</Navbar.Brand>
+            <Navbar.Brand href="/">
+              <img src="/logo.svg" alt="Logo" width="60" height="60" />
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse>
               <Nav>

@@ -19,16 +19,6 @@ export type Advertisment = {
   imageUrl?: string;
 };
 
-// const OrderStatus = {
-//   Created: 0,
-//   Paid: 1,
-//   Transport: 2,
-//   DeliveredToThePoint: 3,
-//   Received: 4,
-//   Archived: 5,
-//   Refund: 6,
-// } as const;
-
 export enum OrderStatus {
   Created = 0,
   Paid = 1,

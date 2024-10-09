@@ -16,6 +16,25 @@ interface JsonServerResponse {
   data: Advertisment[] | Order[];
 }
 
+interface FetchResponse {
+  advertisements: Advertisment[];
+  orders: Order[];
+  totalPages: number | null;
+}
+
+interface AdsData {
+  name: string;
+  imageUrl: string;
+  description: string;
+  price: number;
+}
+
+interface UpdateAdvertisementProps {
+  id: string;
+  formData: AdsData;
+  setError: (message: string) => void;
+}
+
 function makeSearchParams({
   searchValue,
   priceFilter,
@@ -53,12 +72,6 @@ function makeSearchParams({
   }
 
   return params.toString();
-}
-
-interface FetchResponse {
-  advertisements: Advertisment[];
-  orders: Order[];
-  totalPages: number | null;
 }
 
 async function fetchData<T>({
@@ -149,13 +162,6 @@ export async function fetchOders({
   }
 }
 
-interface AdsData {
-  name: string;
-  imageUrl: string;
-  description: string;
-  price: number;
-}
-
 export async function addNewAdvertisement({
   name,
   imageUrl,
@@ -210,12 +216,6 @@ export async function fetchAdvertisement(
   }
 }
 
-interface UpdateAdvertisementProps {
-  id: string;
-  formData: AdsData;
-  setError: (message: string) => void;
-}
-
 export async function updateAdvertisement({
   id,
   formData,
@@ -223,7 +223,7 @@ export async function updateAdvertisement({
 }: UpdateAdvertisementProps) {
   try {
     const response = await fetch(`http://localhost:3000/advertisements/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
