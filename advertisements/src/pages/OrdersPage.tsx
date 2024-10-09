@@ -71,13 +71,15 @@ export default function OrdersPage() {
           ) : orders.length === 0 ? (
             <p>Ничего не найдено по вашему запросу</p>
           ) : (
-            <OrdersList orders={orders}></OrdersList>
+            <>
+              <OrdersList orders={orders}></OrdersList>
+              <PaginationBar
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </>
           )}
-          <PaginationBar
-            totalPages={totalPages}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
         </Container>
       </main>
     </>
